@@ -1,0 +1,64 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    String          @id @default(auto()) @map("_id") @db.ObjectId
+  username              String
+  email                 String          @unique
+  currentVoiceId        String?
+  currentVoiceName      String?
+  currentDescription    String?
+  currentText           String?
+  stripeCustomerId      String?
+  apiKey                String?
+  stripSubscriptionItem String?
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+  textToSpeech          TextToSpeech[]
+  CustomVoiceId         CustomVoiceId[]
+}
+
+model TextToSpeech {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  voiceId     String
+  voiceName   String
+  description String
+  order       Int      @default(0)
+  authorId    String   @db.ObjectId
+  author      User     @relation(fields: [authorId], references: [id])
+  text        String
+  mp3_url     String
+  deleted     Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model CustomVoiceId {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  voiceId     String
+  voiceName   String?
+  description String?
+  order       Int      @default(0)
+  authorId    String   @db.ObjectId
+  author      User     @relation(fields: [authorId], references: [id])
+  deleted     Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Log {
+  id      String   @id @default(cuid()) @map("_id") @db.ObjectId
+  userId  String
+  method  String
+  status  Int
+  created DateTime @default(now())
+}
